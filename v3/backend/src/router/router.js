@@ -3,13 +3,16 @@ import { health } from "../controllers/healthController.js";
 import { routes } from "./routes.js";
 import { sendJson } from "../http/response.js";
 import { parseBody } from "../http/parseBody.js";
+import { matchRoutes } from "../utils/matchRoutes.js";
+import { runStack } from "../utils/runStack.js";
 
+const globalMiddlewares = [];
 
 export async    function router(req, res){
 
     const {method, url} = req;
 
-    const [path, queryString] = req.url.split("?")[1];
+    const [path, queryString] = req.url.split("?");
 
     const query = {};
 
@@ -31,6 +34,7 @@ export async    function router(req, res){
 
     req.params = {};
     
+    
     try{
         if (["POST", "PUT", "PATCH"].includes(method)){
 
@@ -50,29 +54,19 @@ export async    function router(req, res){
 
     for(const r of routes){
 
-        if(r.method !== method)continue;
+        if(r.method !== method) continue;
 
-        if(r.path instanceof RegExp){
+        const result = matchRoutes(r, path);
 
-            const match = path.match(r.path);
-            
-            if(match){
+        if(!result.matched) continue;
 
-            req.params = match.groups || {};
+        req.params = result.params;
 
-            return r.handler(req, res);
-            
-            };
+        const stack = [...globalMiddlewares,
+            ...r.middlewares, r.handler];
 
-        };
-
-        if(typeof r.path === "string" && r.path === path){
-
-            return r.handler(req, res);
-
-        };
-
-
+        return runStack(stack, req, res);
+       
     };
 
     return sendJson(res, 404, {message: "Not Found" });

@@ -8,7 +8,6 @@ import { parseBody } from "../http/parseBody.js";
 export async    function router(req, res){
 
     const {method, url} = req;
-
     const [path, queryString] = req.url.split("?")[1];
 
     const query = {};
@@ -30,7 +29,6 @@ export async    function router(req, res){
     req.query = query;
 
     req.params = {};
-    
     try{
         if (["POST", "PUT", "PATCH"].includes(method)){
 
