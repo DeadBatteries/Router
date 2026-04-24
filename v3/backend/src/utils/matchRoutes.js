@@ -1,10 +1,10 @@
 export function matchRoutes(r, path) {
 
-    if(r.method !== method)continue;
+        const match = path.match(r.path);
+        
+           if(r.path instanceof RegExp){
 
-            if(r.path instanceof RegExp){
-
-                const match = path.match(r.path);
+            
 
                 if(!match) return {matched:false};
 
@@ -35,4 +35,4 @@ export function matchRoutes(r, path) {
 
 
 
-}
+};

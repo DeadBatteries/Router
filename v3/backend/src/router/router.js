@@ -8,19 +8,19 @@ import { runStack } from "../utils/runStack.js";
 
 const globalMiddlewares = [];
 
-export async    function router(req, res){
+export async function router(req, res) {
 
-    const {method, url} = req;
+    const { method, url } = req;
 
     const [path, queryString] = req.url.split("?");
 
     const query = {};
 
-    if(queryString){
+    if (queryString) {
 
         const pairs = queryString.split("&");
 
-        for(const pair of pairs){
+        for (const pair of pairs) {
 
             const [key, value] = pair.split("=");
 
@@ -33,10 +33,10 @@ export async    function router(req, res){
     req.query = query;
 
     req.params = {};
-    
-    
-    try{
-        if (["POST", "PUT", "PATCH"].includes(method)){
+
+
+    try {
+        if (["POST", "PUT", "PATCH"].includes(method)) {
 
             req.body = await parseBody(req);
 
@@ -45,30 +45,31 @@ export async    function router(req, res){
             req.body = {};
 
         };
-    }catch(err){
 
-        sendJson(res, 400, {message: "Invalid JSON" });
+    } catch (err) {
 
-    };
+        return sendJson(res, 400, { message: "Invalid JSON" });
+
+    }
 
 
-    for(const r of routes){
+    for (const r of routes) {
 
-        if(r.method !== method) continue;
+        if (r.method !== method) continue;
 
         const result = matchRoutes(r, path);
 
-        if(!result.matched) continue;
+        if (!result.matched) continue;
 
         req.params = result.params;
 
         const stack = [...globalMiddlewares,
-            ...r.middlewares, r.handler];
+        ...r.middlewares, r.handler];
 
         return runStack(stack, req, res);
-       
-    };
 
-    return sendJson(res, 404, {message: "Not Found" });
-    
+    }
+
+    return sendJson(res, 404, { message: "Not Found" });
+
 };

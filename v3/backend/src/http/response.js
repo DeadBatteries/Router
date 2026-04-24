@@ -4,7 +4,7 @@ export function sendJson(res, status, data) {
 
         "Content-Type":"application/json"
 
-    })
+    });
 
      res.end(JSON.stringify(data));
 

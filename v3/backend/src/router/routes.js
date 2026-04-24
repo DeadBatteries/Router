@@ -1,8 +1,9 @@
 import { health } from "../controllers/healthController.js";
 import { home } from "../controllers/homeController.js";
 import { getUser } from "../controllers/userController.js";
-import { auth, logger } from "../middlewares/auth.js";
+import { auth } from "../middlewares/auth.js";
 import { fakeAuth } from "../middlewares/fakeAuth.js";
+import { logger } from "../middlewares/logger.js";
 
 export const routes = [
     

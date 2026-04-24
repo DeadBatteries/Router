@@ -1,57 +1,76 @@
-import { sendJson } from "../http/response";
+import { sendJson } from "../http/response.js";
 
-export function runStack(stack, req, res){
+export function runStack(stack, req, res) {
 
     let index = 0;
 
     function next(err) {
 
 
-        const fn=stack[index++];
+        const fn = stack[index++];
 
-        if(!fn){
+        if (!fn) {
 
-         if(err){
+            if (err) {
 
-            return sendJson(res, 500, {error: "Internal Server Error"});
+                return sendJson(res, 500, { error: "Internal Server Error" });
 
-             }
+            }
 
             return;
         }
 
-        if(err){
+        try {
 
-            if(fn.length === 4){
+            if (err) {
 
-             fn(err,req,res,next);
-            
-            }else{
+                if (fn.length === 4) {
 
-                return next(err);
+                    const result = fn(err, req, res, next);
+
+                    if (result instanceof Promise) {
+
+                        result.catch(next);
+
+                    }
+
+                } else {
+
+                    return next(err);
+
+                };
+
+                return;
 
             };
-            
-            
 
-        }else{
+            if (fn.length < 4) {
 
-            if(fn.length < 4){
+                const result = fn(req, res, next);
 
-                fn(req, res, next);
+                if (result instanceof Promise) {
 
-            }
+                    result.catch(next);
 
-            return next();
-            
-        };
+                }
 
-        
-    
+            } else {
 
-    }
+                return next();
+
+            };
+
+            return;
+
+
+        } catch (err) {
+
+            return next(err)
+
+        }
+
+    };
 
     next();
-
 
 };
