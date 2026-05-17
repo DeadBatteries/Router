@@ -1,4 +1,4 @@
-const globalMiddlewares = [];
+
 
 export function use(middleware){
 
